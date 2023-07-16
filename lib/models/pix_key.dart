@@ -2,7 +2,7 @@ import 'package:carteira_pix/models/entity.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
 
 /// PixKey
-class PixKey implements Entity {
+class PixKey extends Entity {
   final String id;
   final int creationUnix;
   final String name;
@@ -11,7 +11,7 @@ class PixKey implements Entity {
   final int bankCode;
 
   DateTime get creationDateTime =>
-      DateTime.fromMillisecondsSinceEpoch(creationUnix);
+      DateTime.fromMillisecondsSinceEpoch(creationUnix * 1000);
 
   /// PixKey contructor
   PixKey({
