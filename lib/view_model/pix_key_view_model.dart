@@ -35,7 +35,7 @@ class PixKeyViewModel {
       throw InvalidViewModelStateException();
     }
 
-    final nowUnix = DateTime.now().millisecondsSinceEpoch;
+    final nowUnix = (DateTime.now().millisecondsSinceEpoch / 1000).round();
 
     return PixKey(
       id: previousData?.id ?? '',

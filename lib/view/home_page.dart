@@ -2,6 +2,7 @@ import 'package:carteira_pix/black_midori_theme.dart';
 import 'package:carteira_pix/blocs/pix_key/pix_key_bloc.dart';
 import 'package:carteira_pix/blocs/pix_key/pix_key_state.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
+import 'package:carteira_pix/services/pix_key_service.dart';
 import 'package:carteira_pix/view/add_pix_key_dialog.dart';
 import 'package:carteira_pix/view/home_drawer.dart';
 import 'package:flutter/material.dart';
@@ -92,10 +93,26 @@ class _HomePageState extends State<HomePage> {
         .catchError(
           (error) => ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Não foi possível copiar a chave."),
+              content:
+                  Text("Não foi possível copiar a chave.\nAtualize o app!"),
             ),
           ),
         );
+  }
+
+  Future<void> _onExportClick() async {
+    try {
+      await PixKeyService().exportKeys(_pixKeyBloc.state.pixKeyList);
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              "Não foi fazer o download das chaves para um arquivo.\nAtualize o app!"),
+        ),
+      );
+      // As I am catching all exception, rethrow it for debugging.
+      rethrow;
+    }
   }
 
   @override
@@ -103,6 +120,13 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Carteira Pix"),
+        actions: [
+          IconButton(
+            onPressed: _onExportClick,
+            icon: const Icon(Icons.file_download),
+          ),
+          const SizedBox(width: 12),
+        ],
       ),
       drawer: const HomeDrawer(),
       body: BlocBuilder<PixKeyBloc, PixKeyState>(

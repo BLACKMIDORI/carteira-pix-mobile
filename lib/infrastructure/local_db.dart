@@ -23,7 +23,7 @@ class LocalDb {
             // When creating the db, create the table
             await db.execute('CREATE TABLE PixKey ('
                 'id TEXT PRIMARY KEY,'
-                'creationUnix INTEGER,' //TODO: change it before 2038
+                'creationUnix INTEGER,'
                 'name TEXT,'
                 'value TEXT,'
                 'type INTEGER,'
