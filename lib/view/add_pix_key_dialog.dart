@@ -3,7 +3,9 @@ import 'package:carteira_pix/components/midori_modal.dart';
 import 'package:carteira_pix/data/bank_code_list.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
 import 'package:carteira_pix/repositories/pix_key_repository.dart';
+import 'package:carteira_pix/utils/diacritics.dart';
 import 'package:carteira_pix/view_model/pix_key_view_model.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
 /// Regex for CPF or CNPJ (Brazilian Identification) pix key
@@ -33,17 +35,19 @@ class AddPixKeyDialog extends StatefulWidget {
 }
 
 class _AddPixKeyDialogState extends State<AddPixKeyDialog> {
+  final diacritics = Diacritics();
   final PixKeyViewModel _pixKeyViewModel = PixKeyViewModel();
   bool _isValid = false;
 
-  final Iterable<MapEntry<int, String>> items = bankCodeMap.entries
+  final List<MapEntry<int, String>> items = bankCodeMap.entries
       .map(
         (mapEntry) => MapEntry(
           mapEntry.key.contains("_") ? -1 : int.parse(mapEntry.key),
           mapEntry.value,
         ),
       )
-      .where((mapEntry) => mapEntry.key != -1);
+      .where((mapEntry) => mapEntry.key != -1)
+      .toList();
 
   @override
   void initState() {
@@ -159,27 +163,43 @@ class _AddPixKeyDialogState extends State<AddPixKeyDialog> {
             const Text("Banco"),
             ValueListenableBuilder(
               valueListenable: _pixKeyViewModel.bankCodeNotifier,
-              builder: (context, value, _) {
-                return DropdownButton<int>(
-                  dropdownColor: darkpurple,
-                  value: value,
-                  alignment: Alignment.center,
-                  items: items.map((item) {
-                    return DropdownMenuItem<int>(
-                      value: item.key,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints.loose(
-                          Size.fromWidth(
-                              MediaQuery.of(context).size.width - 200),
-                        ),
-                        child: Text(
-                          "${item.key.toString().padLeft(3, "0")} - ${item.value}",
-                          overflow: TextOverflow.ellipsis,
-                        ),
+              builder: (context, bankCode, _) {
+                return DropdownSearch<MapEntry<int, String>>(
+                  onChanged: (entry) => _onBankChange(entry?.key),
+                  selectedItem: items.cast<MapEntry<int, String>?>().firstWhere(
+                        (entry) => entry?.key == bankCode,
+                        orElse: () => null,
                       ),
-                    );
-                  }).toList(),
-                  onChanged: _onBankChange,
+                  items: items,
+                  filterFn: (item, filter) {
+                    return item
+                        .toString()
+                        .withoutDiacritics(diacritics)
+                        .toLowerCase()
+                        .contains(filter.toLowerCase());
+                  },
+                  itemAsString: (entry) {
+                    final bankCode = entry.key;
+                    final bankName = entry.value;
+
+                    return "${bankCode.toString().padLeft(3, "0")} - $bankName";
+                  },
+                  popupProps: PopupProps.dialog(
+                    showSearchBox: true,
+                    emptyBuilder: (context, searchEntry) {
+                      return Container(
+                        height: 70,
+                        alignment: Alignment.center,
+                        child: const Text("Nenhum banco encontrado"),
+                      );
+                    },
+                    containerBuilder: (context, popupWidget) {
+                      return ColoredBox(
+                        color: darkpurple,
+                        child: popupWidget,
+                      );
+                    },
+                  ),
                 );
               },
             ),
