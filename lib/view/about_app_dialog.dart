@@ -24,7 +24,7 @@ class AboutAppDialog extends StatelessWidget {
               ),
             ),
             const Divider(),
-            const Text("Versão 1.1.0"),
+            const Text("Versão 1.2.0"),
             const Divider(),
             const Text("Por BLACKMIDORI"),
           ],
