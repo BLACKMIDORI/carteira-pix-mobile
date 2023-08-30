@@ -1,11 +1,10 @@
+import 'package:carteira_pix/models/pix_key.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
-import 'package:carteira_pix/view_model/view_model_exceptions.dart';
+import 'package:carteira_pix/view_models/view_model_exceptions.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../models/pix_key.dart';
-
 /// PixKeyViewModel
-class PixKeyViewModel {
+class AddPixKeyViewModel {
   /// id
   PixKey? previousData;
 

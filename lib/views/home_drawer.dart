@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:carteira_pix/black_midori_theme.dart';
-import 'package:carteira_pix/view/about_app_dialog.dart';
+import 'package:carteira_pix/views/about_app_dialog.dart';
 import 'package:flutter/material.dart';
 
 /// HomeDrawer

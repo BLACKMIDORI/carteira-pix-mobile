@@ -4,7 +4,7 @@ import 'package:carteira_pix/data/bank_code_list.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
 import 'package:carteira_pix/repositories/pix_key_repository.dart';
 import 'package:carteira_pix/utils/diacritics.dart';
-import 'package:carteira_pix/view_model/pix_key_view_model.dart';
+import 'package:carteira_pix/view_models/add_pix_key_view_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +36,7 @@ class AddPixKeyDialog extends StatefulWidget {
 
 class _AddPixKeyDialogState extends State<AddPixKeyDialog> {
   final diacritics = Diacritics();
-  final PixKeyViewModel _pixKeyViewModel = PixKeyViewModel();
+  final AddPixKeyViewModel _pixKeyViewModel = AddPixKeyViewModel();
   bool _isValid = false;
 
   final List<MapEntry<int, String>> items = bankCodeMap.entries

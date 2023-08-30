@@ -1,5 +1,5 @@
 import 'package:carteira_pix/black_midori_theme.dart';
-import 'package:carteira_pix/view/home_page.dart';
+import 'package:carteira_pix/views/home_page.dart';
 import 'package:flutter/material.dart';
 
 /// Root widget of the app
