@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-/// ExportPixKeyViewModel
-class ExportPixKeyViewModel extends ChangeNotifier {
+/// PixKeyListViewModel
+class PixKeyListViewModel extends ChangeNotifier {
   final Set<String> _selectedPixKeyIds = <String>{};
 
   List<String> get selectedPixKeyIds =>

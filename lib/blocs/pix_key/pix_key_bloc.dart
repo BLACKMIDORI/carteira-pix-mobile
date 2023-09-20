@@ -23,6 +23,13 @@ class PixKeyBloc extends Bloc<PixKeyEvent, PixKeyState> {
     } else if (event is PixKeyCreateEvent) {
       await _repository.save(event.pixKey);
       pixKeyList = (await _repository.getAll()).toList();
+    } else if (event is PixKeyMultipleCreateEvent) {
+      for (var pixKey in event.pixKeyList) {
+        await _repository.save(pixKey);
+        // In order to prevent error with id milliseconds based
+        await Future.delayed(const Duration(milliseconds: 1));
+      }
+      pixKeyList = (await _repository.getAll()).toList();
     } else if (event is PixKeyUpdateEvent) {
       await _repository.update(event.pixKey);
       pixKeyList = (await _repository.getAll()).toList();

@@ -1,19 +1,25 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:carteira_pix/black_midori_theme.dart';
 import 'package:carteira_pix/blocs/pix_key/pix_key_bloc.dart';
+import 'package:carteira_pix/blocs/pix_key/pix_key_event.dart';
 import 'package:carteira_pix/blocs/pix_key/pix_key_state.dart';
+import 'package:carteira_pix/components/clip_app_bar.dart';
+import 'package:carteira_pix/data/bank_code_list.dart';
+import 'package:carteira_pix/models/pix_key.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
+import 'package:carteira_pix/utils/black_midori_clipper.dart';
 import 'package:carteira_pix/views/add_pix_key_dialog.dart';
 import 'package:carteira_pix/views/export_pix_key_page.dart';
 import 'package:carteira_pix/views/home_drawer.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/pix_key/pix_key_event.dart';
-import '../data/bank_code_list.dart';
-import '../models/pix_key.dart';
+import 'import_pix_key_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -110,18 +116,137 @@ class _HomePageState extends State<HomePage> {
     )));
   }
 
+  Future<void> _onImportClick() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
+      if (result == null || result.files.length < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Nenhum arquivo selecionado."),
+          ),
+        );
+
+        return;
+      }
+      final platformFile = result.files.first;
+      final file = File(platformFile.path!);
+      final bytes = await file.readAsBytes();
+
+      final Map<String, Object?> jsonObject;
+      try {
+        final jsonString = utf8.decode(bytes);
+        jsonObject = jsonDecode(jsonString) as Map<String, Object?>;
+      } on FormatException catch (_) {
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Formato de arquivo inválido."),
+          ),
+        );
+
+        return;
+      }
+      String errorMessage = "";
+      if (jsonObject["appId"] != "com.blackmidori.carteirapix") {
+        errorMessage += "Arquivo de outro aplicativo.\n";
+      }
+      if (jsonObject["type"] != "pix_key_list") {
+        errorMessage += "Tipo de arquivo incorreto.\n";
+      }
+      if (jsonObject["version"] != 1) {
+        errorMessage +=
+            "Versão incompatível, apenas versão '1' é compatível.\n";
+      }
+      if (errorMessage.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+          ),
+        );
+
+        return;
+      }
+
+      try {
+        final List<Map<String, Object?>> jsonList =
+            (jsonObject["data"]! as List<dynamic>).cast<Map<String, Object?>>();
+        final pixKeysToAdd =
+            jsonList.map((jsonObject) => PixKey.fromJson(jsonObject)).toList();
+
+        final list = await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ImportPixKeyPage(
+            storedPixKeys: _pixKeyBloc.state.pixKeyList,
+            pixKeys: pixKeysToAdd,
+          ),
+        ));
+        if (list is List<PixKey>) {
+          try {
+            _pixKeyBloc.add(PixKeyMultipleCreateEvent(pixKeyList: list));
+          } catch (error) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Falha ao adicionar chaves"),
+                ),
+              );
+            }
+          }
+          // TODO: feature to update already existent keys
+          // for (final value in list) {
+          //   if (_pixKeyBloc.state.pixKeyList
+          //       .any((element) => element.id == value.id)) {
+          //     _pixKeyBloc.add(PixKeyUpdateEvent(pixKey: value));
+          //   } else {
+          //     _pixKeyBloc.add(PixKeyCreateEvent(pixKey: value));
+          //   }
+          // }
+        }
+      } catch (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Erro ao processar os dados do arquivo."),
+          ),
+        );
+      }
+    } on PlatformException catch (error) {
+      if (error.code == "read_external_storage_denied") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Permissão de arquivos foi recusada!"),
+          ),
+        );
+      } else {
+        rethrow;
+      }
+    }
+
+    // unawaited(Navigator.of(context).push(MaterialPageRoute(
+    //   builder: (_) => ExportPixKeyPage(
+    //     pixKeys: _pixKeyBloc.state.pixKeyList,
+    //   ),
+    // )));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Carteira Pix"),
-        actions: [
-          IconButton(
-            onPressed: _onExportClick,
-            icon: const Icon(Icons.file_download),
-          ),
-          const SizedBox(width: 12),
-        ],
+      appBar: ClipAppBar(
+        child: AppBar(
+          title: const Text("Carteira Pix"),
+          actions: [
+            IconButton(
+              onPressed: _onImportClick,
+              icon: const Icon(Icons.file_upload),
+            ),
+            IconButton(
+              onPressed: _onExportClick,
+              icon: const Icon(Icons.file_download),
+            ),
+            const SizedBox(width: 12),
+          ],
+        ),
       ),
       drawer: const HomeDrawer(),
       body: BlocBuilder<PixKeyBloc, PixKeyState>(
@@ -209,10 +334,14 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddOrUpdateClick,
-        tooltip: 'Adicionar chave',
-        child: const Icon(Icons.add),
+      floatingActionButton: ClipPath(
+        clipper: const BlackMidoriClipper(),
+        child: FloatingActionButton(
+          shape: const RoundedRectangleBorder(),
+          onPressed: _onAddOrUpdateClick,
+          tooltip: 'Adicionar chave',
+          child: const Icon(Icons.add),
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

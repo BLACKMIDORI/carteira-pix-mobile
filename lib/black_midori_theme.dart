@@ -32,7 +32,6 @@ extension BlackMidoriTheme on ThemeData {
       fontFamily: "RobotoMono",
       scaffoldBackgroundColor: black,
       textTheme: defaultDarkTheme.textTheme,
-      appBarTheme: const AppBarTheme(backgroundColor: purple),
       colorScheme: ColorScheme.fromSwatch(primarySwatch: colorSwatch)
           .copyWith(background: defaultDarkTheme.colorScheme.background),
     );

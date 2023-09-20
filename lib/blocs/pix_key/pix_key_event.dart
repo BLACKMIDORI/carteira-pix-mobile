@@ -15,6 +15,15 @@ class PixKeyCreateEvent extends PixKeyEvent {
   PixKeyCreateEvent({required this.pixKey});
 }
 
+/// PixKeyCreateEvent
+class PixKeyMultipleCreateEvent extends PixKeyEvent {
+  /// PixKey to be created
+  final List<PixKey> pixKeyList;
+
+  /// PixKeyCreateEvent constructor
+  PixKeyMultipleCreateEvent({required this.pixKeyList});
+}
+
 /// PixKeyDeleteEvent
 class PixKeyDeleteEvent extends PixKeyEvent {
   /// PixKey to be deleted

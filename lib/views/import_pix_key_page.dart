@@ -3,48 +3,41 @@ import 'package:carteira_pix/components/clip_app_bar.dart';
 import 'package:carteira_pix/data/bank_code_list.dart';
 import 'package:carteira_pix/models/pix_key.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
-import 'package:carteira_pix/services/pix_key_service.dart';
 import 'package:carteira_pix/view_models/pix_key_list_view_model.dart';
 import 'package:flutter/material.dart';
 
-class ExportPixKeyPage extends StatefulWidget {
+import '../components/custom_check_box.dart';
+
+class ImportPixKeyPage extends StatefulWidget {
+  final List<PixKey> storedPixKeys;
   final List<PixKey> pixKeys;
 
-  const ExportPixKeyPage({Key? key, required this.pixKeys}) : super(key: key);
+  const ImportPixKeyPage({
+    Key? key,
+    required this.storedPixKeys,
+    required this.pixKeys,
+  }) : super(key: key);
 
   @override
-  State<ExportPixKeyPage> createState() => _ExportPixKeyPageState();
+  State<ImportPixKeyPage> createState() => _ImportPixKeyPageState();
 }
 
-class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
+class _ImportPixKeyPageState extends State<ImportPixKeyPage> {
   final PixKeyListViewModel viewModel = PixKeyListViewModel();
 
-  Future<void> _onExportClick() async {
-    try {
-      await PixKeyService().exportKeys(viewModel.selectedPixKeyIds
-          .map(
-            (pixKeyId) =>
-                widget.pixKeys.firstWhere((pixKey) => pixKey.id == pixKeyId),
-          )
-          .toList());
+  // int get countNew {
+  //   final storedIds = widget.storedPixKeys.map((pixKey) => pixKey.id);
+  //
+  //   return viewModel.selectedPixKeyIds
+  //       .where((element) => !storedIds.contains(element))
+  //       .length;
+  // }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Chaves salvas com sucesso!"),
-          ),
-        );
-      }
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              "Não foi fazer o download das chaves para um arquivo.\nAtualize o app!"),
-        ),
-      );
-      // As I am catching all exception, rethrow it for debugging.
-      rethrow;
-    }
+  Future<void> _onImportClick() async {
+    final selectedKeys = viewModel.selectedPixKeyIds.map((pixKeyId) {
+      return widget.pixKeys.firstWhere((pixKey) => pixKey.id == pixKeyId);
+    });
+    Navigator.of(context).pop(selectedKeys.toList());
   }
 
   void _onSelectAllClick() {
@@ -75,10 +68,46 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
                 listenable: viewModel,
                 builder: (_, __) {
                   return IconButton(
-                    onPressed: viewModel.any() ? _onExportClick : null,
-                    icon: const Icon(Icons.file_download),
+                    onPressed: viewModel.any() ? _onImportClick : null,
+                    icon: const Icon(Icons.file_upload),
                   );
                 }),
+            const SizedBox(
+              width: 24,
+            ),
+            CircleAvatar(
+              backgroundColor: black,
+              child: Stack(
+                children: [
+                  Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 5),
+                        child: ListenableBuilder(
+                            listenable: viewModel,
+                            builder: (_, __) {
+                              return Text(
+                                viewModel.selectedPixKeyIds.length
+                                    .toString()
+                                    .padLeft(2, "0"),
+                                style: const TextStyle(
+                                    fontSize: 18, color: brandColor),
+                              );
+                            }),
+                      )),
+                  Center(
+                    child: Transform.translate(
+                      offset: const Offset(-12, 0),
+                      child: const Icon(
+                        Icons.add,
+                        color: brandColor,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(width: 12),
           ],
         ),
@@ -114,6 +143,9 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
                 }
               }
 
+              final checkBoxColor = brandColor;
+              final checkBoxIcon = Icons.add;
+
               return ListTile(
                 onTap: onTap,
                 leading: Icon(
@@ -126,9 +158,13 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
                 ),
                 subtitle: Text(
                     "${pixKey.bankCode} - ${bankCodeMap[pixKey.bankCode.toString()]}"),
-                trailing: Checkbox(
-                  fillColor:
-                      MaterialStatePropertyAll(isChecked ? brandColor : purple),
+                trailing: CustomCheckbox(
+                  color: isChecked ? checkBoxColor : purple,
+                  icon: Icon(
+                    checkBoxIcon,
+                    size: 20,
+                    color: isChecked ? checkBoxColor : purple,
+                  ),
                   value: isChecked,
                   onChanged: (_) => onTap(),
                 ),
