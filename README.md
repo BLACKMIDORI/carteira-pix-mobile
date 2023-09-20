@@ -11,5 +11,5 @@ Carteira Pix - A forma mais fácil de acessar suas chaves pix
 
 
 
-| ![sd](./screenshots/1.jpeg) | ![sd](./screenshots/2.jpeg) |
-|-----------------------------|-----------------------------|
+| ![sd](./screenshots/1.jpeg) | ![sd](./screenshots/2.jpeg) | ![sd](./screenshots/3.jpeg) |
+|-----------------------------|-----------------------------|-----------------------------|
