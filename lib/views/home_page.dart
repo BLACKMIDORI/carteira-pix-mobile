@@ -8,6 +8,7 @@ import 'package:carteira_pix/blocs/pix_key/pix_key_event.dart';
 import 'package:carteira_pix/blocs/pix_key/pix_key_state.dart';
 import 'package:carteira_pix/components/clip_app_bar.dart';
 import 'package:carteira_pix/data/bank_code_list.dart';
+import 'package:carteira_pix/helpers/brazilian_pix_helper.dart';
 import 'package:carteira_pix/models/pix_key.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
 import 'package:carteira_pix/utils/black_midori_clipper.dart';
@@ -15,9 +16,11 @@ import 'package:carteira_pix/views/add_pix_key_dialog.dart';
 import 'package:carteira_pix/views/export_pix_key_page.dart';
 import 'package:carteira_pix/views/home_drawer.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'import_pix_key_page.dart';
 
@@ -52,6 +55,42 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+  }
+
+  void _onQrClick(PixKey pixKey) {
+    String qrData;
+    if (pixKey.type == PixKeyType.copy_and_paste) {
+      qrData = pixKey.value;
+    } else if (pixKey.type == PixKeyType.phone) {
+      qrData = BrazilianPixHelper.generatePixCopyAndPaste("+55" + pixKey.value);
+    } else {
+      qrData = BrazilianPixHelper.generatePixCopyAndPaste(pixKey.value);
+    }
+    if(kDebugMode){
+      print(qrData);
+    }
+    showDialog(
+      context: context,
+      builder: (context) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: AlertDialog(
+            alignment: Alignment.center,
+            content: ColoredBox(
+              color: Colors.white,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: QrImageView(
+                  data: qrData,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _onRemoveClick(PixKey pixKey) {
@@ -304,6 +343,14 @@ class _HomePageState extends State<HomePage> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          onPressed: () => _onQrClick(pixKey),
+                          tooltip: "QR Code",
+                          icon: const Icon(
+                            Icons.qr_code,
+                            color: brandColor,
+                          ),
+                        ),
                         IconButton(
                           onPressed: () => _onRemoveClick(pixKey),
                           tooltip: "Remover",

@@ -14,7 +14,8 @@ final cpfCnpjPixKeyRegex = RegExp(
 
 /// Regex for phone pix key
 final phonePixKeyRegex = RegExp(
-    r"^\(?(?:[1-9][1-9])\)? ?(?:[1-9]|9 ?[1-9])[0-9]{3}(?:\-| )?[0-9]{4}$");
+    // r"^\(?(?:[1-9][1-9])\)? ?(?:[1-9]|9 ?[1-9])[0-9]{3}(?:\-| )?[0-9]{4}$"
+    r"^(?:[1-9][1-9])(?:9[1-9])[0-9]{3}[0-9]{4}$");
 
 /// Regex for email pix key
 final emailPixKeyRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
