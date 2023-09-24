@@ -1,14 +1,19 @@
 import 'package:carteira_pix/helpers/crc16.dart';
 
+/// BrazilianPixHelper
 class BrazilianPixHelper {
-  static String generatePixCopyAndPaste(String pixKeyStr) {
-    final payload = _generatePixCopyAndPastePayload(pixKeyStr);
+  /// Generate Brazilian Pix Key based on BCB manual:
+  ///
+  /// https://www.bcb.gov.br/estabilidadefinanceira/pix?modalAberto=regulamentacao_pix
+  static String generatePixCopyAndPaste(String pixKeyStr, [double? price]) {
+    final payload = _generatePixCopyAndPastePayload(pixKeyStr, price);
     final verificationCode = crc16_CCITT_FALSE(payload);
 
     return payload + verificationCode.toRadixString(16).toUpperCase();
   }
 
-  static String _generatePixCopyAndPastePayload(String pixKeyStr) {
+  static String _generatePixCopyAndPastePayload(
+      String pixKeyStr, double? price) {
     const defaultGUI = "BR.GOV.BCB.PIX";
 
     // Keys
@@ -18,6 +23,7 @@ class BrazilianPixHelper {
     const merchantAccountInformationPixPixKey = "01";
     const merchantCategoryCode = "52";
     const transactionCurrency = "53";
+    const transactionAmount = "54";
     const countryCode = "58";
     const merchantName = "59";
     const merchantCity = "60";
@@ -37,6 +43,7 @@ class BrazilianPixHelper {
             "$merchantAccountInformationPixPixKey${_value(pixKeyStr)}")}"
         "$merchantCategoryCode${_value("0000")}"
         "$transactionCurrency${_value(brl)}"
+        "${price == null ? "" : "$transactionAmount${_value(price.toStringAsFixed(2))}"}"
         "$countryCode${_value("BR")}"
         "$merchantName${_value(nameAndFamilyName)}"
         "$merchantCity${_value(city)}"
