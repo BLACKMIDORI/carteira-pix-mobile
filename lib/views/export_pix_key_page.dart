@@ -21,7 +21,7 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
 
   Future<void> _onExportClick() async {
     try {
-      await PixKeyService().exportKeys(viewModel.selectedPixKeyIds
+      final path = await PixKeyService().exportKeys(viewModel.selectedPixKeyIds
           .map(
             (pixKeyId) =>
                 widget.pixKeys.firstWhere((pixKey) => pixKey.id == pixKeyId),
@@ -29,11 +29,19 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
           .toList());
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Chaves salvas com sucesso!"),
-          ),
-        );
+        if (path != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Chaves salvas com sucesso!"),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Operação cancelada!"),
+            ),
+          );
+        }
       }
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(

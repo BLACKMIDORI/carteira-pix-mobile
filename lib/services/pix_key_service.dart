@@ -9,7 +9,9 @@ import 'package:path_provider/path_provider.dart';
 /// PixKeyService
 class PixKeyService {
   /// Export pix keys to a json file
-  Future<void> exportKeys(List<PixKey> pixKeyList) async {
+  ///
+  /// Returns: path of the saved file or null if operation was cancelled.
+  Future<String?> exportKeys(List<PixKey> pixKeyList) async {
     final data = PixKeyListFileData(
         appId: "com.blackmidori.carteirapix", pixKeyList: pixKeyList);
 
@@ -24,6 +26,7 @@ class PixKeyService {
 
     // Open save file dialog
     final params = SaveFileDialogParams(sourceFilePath: tempFilePath);
-    await FlutterFileDialog.saveFile(params: params);
+
+    return await FlutterFileDialog.saveFile(params: params);
   }
 }
