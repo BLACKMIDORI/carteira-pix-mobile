@@ -83,7 +83,7 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
                 listenable: viewModel,
                 builder: (_, __) {
                   return IconButton(
-                    onPressed: viewModel.any() ? _onExportClick : null,
+                    onPressed: viewModel.isNotEmpty ? _onExportClick : null,
                     icon: const Icon(Icons.file_download),
                   );
                 }),

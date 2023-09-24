@@ -68,7 +68,7 @@ class _ImportPixKeyPageState extends State<ImportPixKeyPage> {
                 listenable: viewModel,
                 builder: (_, __) {
                   return IconButton(
-                    onPressed: viewModel.any() ? _onImportClick : null,
+                    onPressed: viewModel.isNotEmpty ? _onImportClick : null,
                     icon: const Icon(Icons.file_upload),
                   );
                 }),
