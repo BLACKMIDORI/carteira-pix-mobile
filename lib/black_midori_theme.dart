@@ -31,9 +31,18 @@ extension BlackMidoriTheme on ThemeData {
     return ThemeData(
       fontFamily: "RobotoMono",
       scaffoldBackgroundColor: black,
-      textTheme: defaultDarkTheme.textTheme,
-      colorScheme: ColorScheme.fromSwatch(primarySwatch: colorSwatch)
-          .copyWith(background: defaultDarkTheme.colorScheme.background),
+      appBarTheme: defaultDarkTheme.appBarTheme.copyWith(
+        color: brandColor,
+        foregroundColor: Colors.white,
+      ),
+      dividerTheme: defaultDarkTheme.dividerTheme.copyWith(
+        color: ColorTween(begin: black, end: Colors.black).lerp(0.5),
+      ),
+      colorScheme: ColorScheme.fromSwatch(primarySwatch: colorSwatch).copyWith(
+        surface: defaultDarkTheme.colorScheme.surface,
+        onSurface: Colors.white,
+        onSurfaceVariant: Colors.white,
+      ),
     );
   }
 }

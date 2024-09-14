@@ -3,9 +3,9 @@ import 'package:carteira_pix/views/home_page.dart';
 import 'package:flutter/material.dart';
 
 /// Root widget of the app
-class RootWidget extends StatelessWidget {
+class MyApp extends StatelessWidget {
   /// Root Widget constructor
-  const RootWidget({super.key});
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override

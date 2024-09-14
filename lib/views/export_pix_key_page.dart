@@ -135,8 +135,7 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
                 subtitle: Text(
                     "${pixKey.bankCode} - ${bankCodeMap[pixKey.bankCode.toString()]}"),
                 trailing: Checkbox(
-                  fillColor:
-                      MaterialStatePropertyAll(isChecked ? brandColor : purple),
+                  side: const BorderSide(color: purple),
                   value: isChecked,
                   onChanged: (_) => onTap(),
                 ),

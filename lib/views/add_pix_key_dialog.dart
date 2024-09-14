@@ -4,25 +4,10 @@ import 'package:carteira_pix/data/bank_code_list.dart';
 import 'package:carteira_pix/models/pix_key_type.dart';
 import 'package:carteira_pix/repositories/pix_key_repository.dart';
 import 'package:carteira_pix/utils/diacritics.dart';
+import 'package:carteira_pix/utils/pix_utils.dart';
 import 'package:carteira_pix/view_models/add_pix_key_view_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-
-/// Regex for CPF or CNPJ (Brazilian Identification) pix key
-final cpfCnpjPixKeyRegex = RegExp(
-    r"(^\d{3}\.?\d{3}\.?\d{3}\-?\d{2}$)|(^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}\-?\d{2}$)");
-
-/// Regex for phone pix key
-final phonePixKeyRegex = RegExp(
-    // r"^\(?(?:[1-9][1-9])\)? ?(?:[1-9]|9 ?[1-9])[0-9]{3}(?:\-| )?[0-9]{4}$"
-    r"^(?:[1-9][1-9])(?:9[1-9])[0-9]{3}[0-9]{4}$");
-
-/// Regex for email pix key
-final emailPixKeyRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
-
-/// Regex for random pix key
-final randomPixKeyRegex = RegExp(
-    r"^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$");
 
 /// AddPixKeyDialog
 class AddPixKeyDialog extends StatefulWidget {
@@ -86,23 +71,7 @@ class _AddPixKeyDialogState extends State<AddPixKeyDialog> {
   void onPixKeyValueChange() {
     final value = _pixKeyViewModel.valueController.text;
 
-    if (value.length > 2 &&
-        value.substring(2, 3) == "9" &&
-        phonePixKeyRegex.hasMatch(value)) {
-      _pixKeyViewModel.typeNotifier.value = PixKeyType.phone;
-    } else if (cpfCnpjPixKeyRegex.hasMatch(value)) {
-      _pixKeyViewModel.typeNotifier.value = PixKeyType.cpf_cnpj;
-    } else if (phonePixKeyRegex.hasMatch(value)) {
-      _pixKeyViewModel.typeNotifier.value = PixKeyType.phone;
-    } else if (emailPixKeyRegex.hasMatch(value)) {
-      _pixKeyViewModel.typeNotifier.value = PixKeyType.email;
-    } else if (randomPixKeyRegex.hasMatch(value)) {
-      _pixKeyViewModel.typeNotifier.value = PixKeyType.random;
-    } else if (value.isNotEmpty) {
-      _pixKeyViewModel.typeNotifier.value = PixKeyType.copy_and_paste;
-    } else {
-      _pixKeyViewModel.typeNotifier.value = null;
-    }
+    _pixKeyViewModel.typeNotifier.value = PixUtils.getPixType(value);
   }
 
   void updateIsValid() {
@@ -222,7 +191,10 @@ class _AddPixKeyDialogState extends State<AddPixKeyDialog> {
                         },
                       ),
                     ),
-                    child: const Text("Cancelar"),
+                    child: const Text(
+                      "Cancelar",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -242,9 +214,12 @@ class _AddPixKeyDialogState extends State<AddPixKeyDialog> {
                         },
                       ),
                     ),
-                    child: Text(_pixKeyViewModel.previousData != null
-                        ? "Salvar alterações"
-                        : "Adicionar"),
+                    child: Text(
+                      _pixKeyViewModel.previousData != null
+                          ? "Salvar alterações"
+                          : "Adicionar",
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

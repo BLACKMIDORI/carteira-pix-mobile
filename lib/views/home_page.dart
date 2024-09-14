@@ -15,6 +15,7 @@ import 'package:carteira_pix/views/add_pix_key_dialog.dart';
 import 'package:carteira_pix/views/export_pix_key_page.dart';
 import 'package:carteira_pix/views/home_drawer.dart';
 import 'package:carteira_pix/views/qr_code_pix_dialog.dart';
+import 'package:carteira_pix/views/temporary_qr_code_pix_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -60,6 +61,15 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return QrCodePixDialog(pixKey: pixKey);
+      },
+    );
+  }
+
+  void _onTemporaryQrClick() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const TemporaryQrCodePixDialog();
       },
     );
   }
@@ -352,14 +362,40 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
-      floatingActionButton: ClipPath(
-        clipper: const BlackMidoriClipper(borderLength: 0.15),
-        child: FloatingActionButton(
-          shape: const RoundedRectangleBorder(),
-          onPressed: _onAddOrUpdateClick,
-          tooltip: 'Adicionar chave',
-          child: const Icon(Icons.add),
-        ),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipPath(
+            clipper: const BlackMidoriClipper(borderLength: 0.15),
+            child: FloatingActionButton(
+              shape: const RoundedRectangleBorder(),
+              onPressed: _onTemporaryQrClick,
+              tooltip: 'abrir qr code temporário',
+              child: Stack(
+                children: [
+                  Transform.translate(
+                    offset: const Offset(-7, -7),
+                    child: const Icon(Icons.qr_code),
+                  ),
+                  Transform.translate(
+                    offset: const Offset(7, 7),
+                    child: const Icon(Icons.access_time),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          ClipPath(
+            clipper: const BlackMidoriClipper(borderLength: 0.15),
+            child: FloatingActionButton(
+              shape: const RoundedRectangleBorder(),
+              onPressed: _onAddOrUpdateClick,
+              tooltip: 'Adicionar chave',
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
