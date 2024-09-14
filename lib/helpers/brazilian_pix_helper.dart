@@ -27,8 +27,6 @@ class BrazilianPixHelper {
     const countryCode = "58";
     const merchantName = "59";
     const merchantCity = "60";
-    const additionalDataField = "62";
-    const additionalDataFieldReferenceLabel = "05";
     const crc16 = "63";
 
     // values
@@ -47,8 +45,6 @@ class BrazilianPixHelper {
         "$countryCode${_value("BR")}"
         "$merchantName${_value(nameAndFamilyName)}"
         "$merchantCity${_value(city)}"
-        "$additionalDataField${_value(""
-            "$additionalDataFieldReferenceLabel${_value("CarteiraPix")}")}"
         "$crc16"
         "04";
 
