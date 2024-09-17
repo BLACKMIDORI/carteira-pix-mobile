@@ -70,6 +70,7 @@ class _ImportPixKeyPageState extends State<ImportPixKeyPage> {
                   return IconButton(
                     onPressed: viewModel.isNotEmpty ? _onImportClick : null,
                     icon: const Icon(Icons.file_upload),
+                    tooltip: "Importar de um arquivo",
                   );
                 }),
             const SizedBox(

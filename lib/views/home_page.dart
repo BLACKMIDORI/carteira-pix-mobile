@@ -259,10 +259,12 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               onPressed: _onImportClick,
               icon: const Icon(Icons.file_upload),
+              tooltip: "Importar de um arquivo",
             ),
             IconButton(
               onPressed: _onExportClick,
               icon: const Icon(Icons.file_download),
+              tooltip: "Exportar para um arquivo",
             ),
             const SizedBox(width: 12),
           ],

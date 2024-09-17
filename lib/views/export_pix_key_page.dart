@@ -85,6 +85,7 @@ class _ExportPixKeyPageState extends State<ExportPixKeyPage> {
                   return IconButton(
                     onPressed: viewModel.isNotEmpty ? _onExportClick : null,
                     icon: const Icon(Icons.file_download),
+                    tooltip: "Exportar para um arquivo",
                   );
                 }),
             const SizedBox(width: 12),

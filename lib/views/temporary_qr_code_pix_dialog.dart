@@ -25,6 +25,7 @@ class TemporaryQrCodePixDialog extends StatefulWidget {
 }
 
 class _TemporaryQrCodePixDialogState extends State<TemporaryQrCodePixDialog> {
+  final inputGlobalKey = GlobalKey();
   final textInputController = TextEditingController();
   String? pixKeyValue;
   PixKeyType? get pixKeyType =>
@@ -130,117 +131,164 @@ class _TemporaryQrCodePixDialogState extends State<TemporaryQrCodePixDialog> {
     final pixKeyValue = this.pixKeyValue;
     final clipboardMessage = _clipboardMessage;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
-      child: AlertDialog(
-        backgroundColor: Colors.transparent,
-        alignment: Alignment.center,
-        contentPadding: EdgeInsets.symmetric(horizontal: 24),
-        insetPadding: EdgeInsets.zero,
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(
-                  controller: textInputController,
-                  decoration: const InputDecoration(
-                    hintText: "Informe uma chave",
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                ),
-                Text(clipboardMessage ?? ""),
-                Material(
-                  color: Colors.transparent,
-                  child: SizedBox(
-                    height: 80,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: onCopyClick,
-                          visualDensity: const VisualDensity(
-                            horizontal: VisualDensity.maximumDensity,
-                            vertical: VisualDensity.maximumDensity,
+    return ColoredBox(
+      color: Colors.black.withOpacity(0.5),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+        child: AlertDialog(
+          backgroundColor: Colors.transparent,
+          alignment: Alignment.center,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+          insetPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(clipboardMessage ?? ""),
+                  Material(
+                    color: Colors.transparent,
+                    child: SizedBox(
+                      height: 80,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (pixKeyValue != null)
+                            IconButton(
+                              onPressed: onCopyClick,
+                              visualDensity: const VisualDensity(
+                                horizontal: VisualDensity.maximumDensity,
+                                vertical: VisualDensity.maximumDensity,
+                              ),
+                              icon: const Icon(
+                                Icons.copy,
+                                color: brandColor,
+                              ),
+                            ),
+                          ClipPath(
+                            clipper:
+                                const BlackMidoriClipper(borderLength: 0.2),
+                            child: Text(
+                              switch (pixKeyType) {
+                                null => "",
+                                PixKeyType.copy_and_paste => "Pix copia e cola",
+                                PixKeyType.cpf_cnpj => "CPF/CNPJ",
+                                PixKeyType.phone => "Telefone",
+                                PixKeyType.email => "E-Mail",
+                                PixKeyType.random => "Aleatória",
+                              },
+                            ),
                           ),
-                          icon: const Icon(
-                            Icons.copy,
-                            color: brandColor,
-                          ),
-                        ),
-                        ClipPath(
-                          clipper: const BlackMidoriClipper(borderLength: 0.2),
-                          child: pixKeyType == PixKeyType.copy_and_paste
-                              ? const Text("Pix copia e cola")
-                              : ElevatedButton(
-                                  onPressed: onChangeAmountClick,
-                                  child: ListenableBuilder(
-                                    listenable: _pixAmountInBRL,
-                                    builder: (_, __) {
-                                      final pixAmountInBRL =
-                                          _pixAmountInBRL.value;
-
-                                      return Text(
-                                        pixAmountInBRL == null
-                                            ? "Definir valor"
-                                            : "Mudar valor",
-                                      );
-                                    },
-                                  ),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (pixKeyType != PixKeyType.copy_and_paste)
-                  ListenableBuilder(
-                    listenable: _pixAmountInBRL,
-                    builder: (_, __) {
-                      final pixAmountInBRL = _pixAmountInBRL.value;
-
-                      return Text(
-                        pixAmountInBRL == null
-                            ? "Valor não definido"
-                            : "R\$ ${pixAmountInBRL.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w700),
-                      );
-                    },
-                  ),
-                const SizedBox(
-                  height: 14,
-                ),
-                ClipPath(
-                  clipper: const BlackMidoriClipper(),
-                  child: ColoredBox(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: ListenableBuilder(
-                          listenable: _pixAmountInBRL,
-                          builder: (_, __) {
-                            final qrData = getPixQrCodeData();
-                            if (qrData == null) return const SizedBox.shrink();
-                            return QrImageView(
-                              data: qrData,
-                            );
-                          },
-                        ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 24,
-                ),
-                if (pixKeyValue != null) Text(pixKeyValue)
-              ],
+                  if (pixKeyType != PixKeyType.copy_and_paste &&
+                      pixKeyValue != null)
+                    ElevatedButton(
+                      onPressed: onChangeAmountClick,
+                      style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(purple),
+                      ),
+                      child: ListenableBuilder(
+                        listenable: _pixAmountInBRL,
+                        builder: (_, __) {
+                          final pixAmountInBRL = _pixAmountInBRL.value;
+
+                          return Text(
+                            pixAmountInBRL == null
+                                ? "Definir valor"
+                                : "Mudar valor",
+                            style: const TextStyle(color: Colors.white),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(
+                    height: 14,
+                  ),
+                  if (pixKeyType != PixKeyType.copy_and_paste &&
+                      pixKeyValue != null)
+                    ListenableBuilder(
+                      listenable: _pixAmountInBRL,
+                      builder: (_, __) {
+                        final pixAmountInBRL = _pixAmountInBRL.value;
+
+                        return Text(
+                          pixAmountInBRL == null
+                              ? "Valor não definido"
+                              : "R\$ ${pixAmountInBRL.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w700),
+                        );
+                      },
+                    ),
+                  KeyedSubtree(
+                    key: inputGlobalKey,
+                    child: TextField(
+                      controller: textInputController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.black,
+                        suffix: IconButton(
+                          onPressed: pixKeyValue != null
+                              ? FocusScope.of(context).unfocus
+                              : null,
+                          icon: Icon(
+                            Icons.navigate_next,
+                            color: pixKeyValue != null ? Colors.white : null,
+                          ),
+                          style: const ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(brandColor),
+                          ),
+                        ),
+                        hintText: "Informe uma chave",
+                        hintStyle: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 14,
+                  ),
+                  ClipPath(
+                    clipper: const BlackMidoriClipper(),
+                    child: ListenableBuilder(
+                      listenable: _pixAmountInBRL,
+                      builder: (context, _) {
+                        final qrData = getPixQrCodeData();
+                        return ColoredBox(
+                          color: qrData == null
+                              ? Colors.transparent
+                              : Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: ListenableBuilder(
+                                listenable: _pixAmountInBRL,
+                                builder: (_, __) {
+                                  if (qrData == null)
+                                    return const SizedBox.shrink();
+                                  return QrImageView(
+                                    data: qrData,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 24,
+                  ),
+                  if (pixKeyValue != null) Text(pixKeyValue)
+                ],
+              ),
             ),
           ),
         ),

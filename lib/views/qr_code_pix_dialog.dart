@@ -109,114 +109,125 @@ class _QrCodePixDialogState extends State<QrCodePixDialog> {
   Widget build(BuildContext context) {
     final clipboardMessage = _clipboardMessage;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
-      child: AlertDialog(
-        backgroundColor: Colors.transparent,
-        alignment: Alignment.center,
-        contentPadding: EdgeInsets.symmetric(horizontal: 24),
-        insetPadding: EdgeInsets.zero,
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(clipboardMessage ?? ""),
-                Material(
-                  color: Colors.transparent,
-                  child: SizedBox(
-                    height: 80,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: onCopyClick,
-                          visualDensity: const VisualDensity(
-                            horizontal: VisualDensity.maximumDensity,
-                            vertical: VisualDensity.maximumDensity,
+    return ColoredBox(
+      color: Colors.black.withOpacity(0.5),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+        child: AlertDialog(
+          backgroundColor: Colors.transparent,
+          alignment: Alignment.center,
+          contentPadding: EdgeInsets.symmetric(horizontal: 24),
+          insetPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(clipboardMessage ?? ""),
+                  Material(
+                    color: Colors.transparent,
+                    child: SizedBox(
+                      height: 80,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: onCopyClick,
+                            visualDensity: const VisualDensity(
+                              horizontal: VisualDensity.maximumDensity,
+                              vertical: VisualDensity.maximumDensity,
+                            ),
+                            icon: const Icon(
+                              Icons.copy,
+                              color: brandColor,
+                            ),
                           ),
-                          icon: const Icon(
-                            Icons.copy,
-                            color: brandColor,
-                          ),
-                        ),
-                        ClipPath(
-                          clipper: const BlackMidoriClipper(borderLength: 0.2),
-                          child: widget.pixKey.type == PixKeyType.copy_and_paste
-                              ? const Text("Pix copia e cola")
-                              : ElevatedButton(
-                                  onPressed: onChangeAmountClick,
-                                  child: ListenableBuilder(
-                                    listenable: _pixAmountInBRL,
-                                    builder: (_, __) {
-                                      final pixAmountInBRL =
-                                          _pixAmountInBRL.value;
+                          ClipPath(
+                            clipper:
+                                const BlackMidoriClipper(borderLength: 0.2),
+                            child:
+                                widget.pixKey.type == PixKeyType.copy_and_paste
+                                    ? const Text("Pix copia e cola")
+                                    : ElevatedButton(
+                                        onPressed: onChangeAmountClick,
+                                        style: const ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStatePropertyAll(purple),
+                                        ),
+                                        child: ListenableBuilder(
+                                          listenable: _pixAmountInBRL,
+                                          builder: (_, __) {
+                                            final pixAmountInBRL =
+                                                _pixAmountInBRL.value;
 
-                                      return Text(
-                                        pixAmountInBRL == null
-                                            ? "Definir valor"
-                                            : "Mudar valor",
-                                      );
-                                    },
-                                  ),
-                                ),
-                        ),
-                      ],
+                                            return Text(
+                                              pixAmountInBRL == null
+                                                  ? "Definir valor"
+                                                  : "Mudar valor",
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if (widget.pixKey.type != PixKeyType.copy_and_paste)
-                  ListenableBuilder(
-                    listenable: _pixAmountInBRL,
-                    builder: (_, __) {
-                      final pixAmountInBRL = _pixAmountInBRL.value;
+                  if (widget.pixKey.type != PixKeyType.copy_and_paste)
+                    ListenableBuilder(
+                      listenable: _pixAmountInBRL,
+                      builder: (_, __) {
+                        final pixAmountInBRL = _pixAmountInBRL.value;
 
-                      return Text(
-                        pixAmountInBRL == null
-                            ? "Valor não definido"
-                            : "R\$ ${pixAmountInBRL.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w700),
-                      );
-                    },
+                        return Text(
+                          pixAmountInBRL == null
+                              ? "Valor não definido"
+                              : "R\$ ${pixAmountInBRL.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w700),
+                        );
+                      },
+                    ),
+                  const SizedBox(
+                    height: 14,
                   ),
-                const SizedBox(
-                  height: 14,
-                ),
-                ClipPath(
-                  clipper: const BlackMidoriClipper(),
-                  child: ColoredBox(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: ListenableBuilder(
-                          listenable: _pixAmountInBRL,
-                          builder: (_, __) {
-                            final qrData = getPixQrCodeData();
+                  ClipPath(
+                    clipper: const BlackMidoriClipper(),
+                    child: ColoredBox(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: ListenableBuilder(
+                            listenable: _pixAmountInBRL,
+                            builder: (_, __) {
+                              final qrData = getPixQrCodeData();
 
-                            return QrImageView(
-                              data: qrData,
-                            );
-                          },
+                              return QrImageView(
+                                data: qrData,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 24,
-                ),
-                Text(widget.pixKey.name),
-                SizedBox(
-                  height: 12,
-                ),
-                Text(widget.pixKey.value)
-              ],
+                  SizedBox(
+                    height: 24,
+                  ),
+                  Text(widget.pixKey.name),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Text(widget.pixKey.value)
+                ],
+              ),
             ),
           ),
         ),
